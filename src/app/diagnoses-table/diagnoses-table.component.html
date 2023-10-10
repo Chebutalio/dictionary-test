@@ -1,1 +1,74 @@
-<p>diagnoses-table works!</p>
+<section class="diagnoses-table">
+  <form [formGroup]="diagnosesForm" (ngSubmit)="onSubmit()">
+    <div class="date-container">
+      <label class="label">Дата: </label>
+      <div class="control-container">
+        <input
+          class="date-control"
+          type="date"
+          formControlName="date"
+          [ngClass]="{ 'control-error' : diagnosesForm.get('date')?.hasError('Invalid date') }"
+        >
+        <p *ngIf="diagnosesForm.get('date')?.hasError('Invalid date')" class="error-message">
+          <span class="error-text">Дата не може бути в минулому.</span>
+        </p>
+      </div>
+
+    </div>
+
+
+    <h2 class="header">Діагнози за ICPC-2</h2>
+
+    <div formArrayName="dynamicControls">
+      <div *ngFor="let controlGroup of dynamicControls.controls; let i = index" [formGroupName]="i">
+        <div class="controls-container">
+          <ng-select
+            #diagnosisSelect
+            [clearable]="false"
+            [searchable]="false"
+            [virtualScroll]="true"
+            appearance="outline"
+            appendTo="body"
+            class="control"
+            formControlName="selectControl"
+            placeholder="Діагноз"
+            [notFoundText]="''"
+          >
+            <div>
+              <ng-template let-searchTerm="searchTerm" ng-header-tmp>
+                <input
+                  #search
+                  (input)="onSearchDiagnosis(search.value, $event)"
+                  [value]="searchTerm"
+                  class="multi-select__input"
+                  placeholder="Знайти">
+              </ng-template>
+            </div>
+            <ng-option *ngFor="let diagnosis of diagnoses" [value]="diagnosis" class="ia-select__option">
+              {{ diagnosis.code + diagnosis.name }}
+            </ng-option>
+          </ng-select>
+
+          <input
+            class="control text-input"
+            type="text"
+            placeholder="Ведіть коментар"
+            formControlName="textControl"
+          >
+          <button
+            class="btn delete-control-btn"
+            type="button"
+            (click)="removeDynamicControl(i)"
+          >Видалити діагноз</button>
+        </div>
+
+      </div>
+    </div>
+    <button class="btn add-btn" type="button" (click)="addDynamicControl()">+ Додати діагноз</button>
+
+    <div class="json-container">
+      <button class="btn json-btn" type="submit">Сформувати JSON</button>
+      <textarea class="json-output" [value]="generatedJson | json" disabled></textarea>
+    </div>
+  </form>
+</section>
